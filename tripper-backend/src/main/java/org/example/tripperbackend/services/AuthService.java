@@ -47,7 +47,7 @@ public class AuthService {
             throw new IllegalStateException("Username already exists");
         }
 
-        User user = new User(username, passwordEncoder.encode(password));
+        User user = new User(username.toLowerCase(), passwordEncoder.encode(password));
         Role userRole = roleRepository.findByName("USER").orElseGet(() -> {
             Role newRole = new Role("USER");
             roleRepository.save(newRole);
@@ -64,7 +64,7 @@ public class AuthService {
      */
     public String login(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password));
+                new UsernamePasswordAuthenticationToken(username.toLowerCase(), password));
 
         // Now setting the authentication in the security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
