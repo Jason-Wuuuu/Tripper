@@ -1,7 +1,5 @@
-"use client";
+import TripDetail from "@/app/ui/trips/TripDetail";
 
 export default function Page({ params }: { params: { id: string } }) {
-  const id = params.id;
-
-  return <p>Trip: {id}</p>;
+  return <TripDetail id={params.id} />;
 }

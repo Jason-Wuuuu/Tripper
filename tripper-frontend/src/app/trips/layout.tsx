@@ -3,16 +3,25 @@ import Trips from "../ui/trips/Trips";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden font-mono">
-      <div className="w-full flex-none md:w-64 p-3">
-        <div className="flex items-center justify-between gap-2">
+    <div className="flex h-screen font-mono bg-base-200">
+      {/* left */}
+      <div className="flex flex-col w-1/4 p-2 space-y-2">
+        <div className="flex flex-col w-full items-center">
           <Search placeholder="Search Trips" />
           {/* <CreateInvoice /> */}
         </div>
 
-        <Trips />
+        <div className="flex-grow overflow-y-auto hide-scrollbar">
+          <Trips />
+        </div>
+
+        <button type="button" className="btn btn-accent w-full">
+          Start Planning
+        </button>
       </div>
-      <div className="flex-grow p-6 md:overflow-y-auto md:p-12">{children}</div>
+
+      {/* right */}
+      <div className="flex-grow p-3">{children}</div>
     </div>
   );
 }
