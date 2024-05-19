@@ -45,7 +45,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
       params.delete("q");
     }
 
-    replace(`${pathname}?${params.toString()}`);
+    replace(`/trips/?${params.toString()}`);
   };
 
   return (

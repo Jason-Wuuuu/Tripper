@@ -7,7 +7,6 @@ import { fetchTrips } from "@/app/lib/data";
 import { TripsResponse, Trip } from "@/types";
 
 import Search from "@/app/ui/trips/Search";
-import TripDetail from "../ui/trips/TripDetail";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -33,34 +32,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       : router.push(`/trips`);
   }, [selectedTrip, router]);
 
+  const filteredTrips = trips.filter((trip) => trip.id !== selectedTrip?.id);
+
   return (
-    <div className="flex h-screen font-mono bg-base-100 ">
+    <div className="flex h-full font-mono bg-base-100">
       {/* left */}
       <div
         className={`${
           selectedTrip ? "w-1/4" : "w-4/5 mx-auto"
         } flex flex-col px-4`}
       >
-        <div className="flex flex-col items-center py-4 space-y-2">
+        {/* <div className="flex flex-col items-center py-4 space-y-2">
           <Search placeholder="Search Trips" />
-        </div>
+        </div> */}
 
-        <div className="flex-grow overflow-y-auto hide-scrollbar px-2 py-4">
+        <div className="flex-grow overflow-y-auto hide-scrollbar px-2 pt-2 pb-5">
           <div
             className={`grid ${
               selectedTrip ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"
             } gap-5`}
           >
-            {trips.map((trip: Trip) => {
+            {filteredTrips.map((trip: Trip) => {
               return (
                 <div
                   key={trip.id}
                   className={`card ${
-                    selectedTrip?.id === trip.id
+                    trip.id === selectedTrip?.id
                       ? "bg-base-100"
-                      : "bg-base-200 shadow-md cursor-pointer hover:bg-base-300"
+                      : "bg-base-200 shadow-md"
                   }`}
-                  onClick={() => setSelectedTrip(trip)}
                 >
                   <div className="card-body">
                     <h2 className="card-title text-md">{trip.title}</h2>
@@ -73,8 +73,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         className="btn btn-primary btn-sm shadow-md"
+                        onClick={() => setSelectedTrip(trip)}
                       >
-                        Save
+                        Detail
                       </button>
                     </div>
                   </div>
@@ -86,7 +87,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* right */}
-      {selectedTrip && <div className="w-3/4 bg-base-100">{children}</div>}
+      {selectedTrip && (
+        <div className="w-3/4 bg-base-100 flex flex-col px-5">
+          <h2 className="text-2xl font-bold pb-5">
+            {`${selectedTrip.title} (${new Date(
+              selectedTrip.startDate
+            ).getFullYear()})`}
+          </h2>
+          <div className="flex-grow overflow-y-auto">{children}</div>
+        </div>
+      )}
     </div>
   );
 }

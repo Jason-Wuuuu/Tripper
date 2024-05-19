@@ -44,9 +44,9 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
   );
 
   return (
-    <div className="flex flex-col h-screen px-5">
+    <div className="flex flex-col h-full">
       {/* Date Tabs */}
-      <div role="tablist" className="tabs tabs-bordered pt-4">
+      <div role="tablist" className="tabs tabs-bordered">
         {datesArray.map((date, index) => (
           <a
             key={index}
