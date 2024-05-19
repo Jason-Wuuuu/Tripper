@@ -4,8 +4,9 @@
 // import { lusitana } from '@/app/ui/fonts';
 // import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from "react";
+import Trips from "../ui/trips/Trips";
 
-export default async function Page({
+export default function Page({
   searchParams,
 }: {
   searchParams?: {

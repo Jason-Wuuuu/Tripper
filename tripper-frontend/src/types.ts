@@ -3,25 +3,21 @@ export type Trip = {
   title: string;
   owners: string[]; // References to User collection documents
   visibility: boolean; // true for public, false for private
-  startDate: Date; // Using JavaScript Date object
-  endDate: Date;
+  startDate: string; // Using JavaScript Date object
+  endDate: string;
   schedules: Schedule[]; // Embedded documents for schedules
 };
 
 export type Schedule = {
   id: string; // Unique ID for each schedule
-  date: Date;
+  date: string;
   stops: Stop[]; // Embedded documents for stops
 };
 
 export type Stop = {
   id: string; // Unique ID for each stop
-  startTime: string; // Assuming time is represented as a string in HH:MM format
-  endTime: string; // Assuming time is represented as a string in HH:MM format
-  details: StopDetails; // Stop details are embedded for faster read access
-};
-
-export type StopDetails = {
+  startTime: string;
+  endTime: string;
   title: string;
   tags: string[]; // Array of strings, e.g., ["restaurant", "museum", "sight"]
   description: string;

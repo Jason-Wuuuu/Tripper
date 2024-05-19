@@ -1,18 +1,76 @@
-// "use client";
+// components/DateTabs.tsx
+import { useState, useEffect } from "react";
 
-import { fetchTripById } from "@/app/lib/data";
-import { TripResponse, Trip } from "@/types";
+import { Trip } from "@/types";
+import ScheduleDetail from "./ScheduleDetail";
 
-export default async function TripDetail({ id }: { id: string }) {
-  const tripResponse: TripResponse = await fetchTripById(id);
+const TripDetail = ({ trip }: { trip: Trip }) => {
+  const [selectedTab, setSelectedTab] = useState<number>(0);
 
-  if (tripResponse.ok && tripResponse.data) {
-    const trip: Trip = tripResponse.data;
+  useEffect(() => {
+    setSelectedTab(0);
+  }, [trip]);
 
-    return (
-      <>
-        <h1>{trip.title}</h1>
-      </>
-    );
-  }
-}
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+    };
+    return date.toLocaleDateString(undefined, options);
+  };
+
+  const getDateRange = (start: string, end: string): string[] => {
+    const dateArray: string[] = [];
+    let currentDate = new Date(start);
+
+    while (currentDate <= new Date(end)) {
+      dateArray.push(currentDate.toISOString());
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dateArray;
+  };
+
+  const datesArray = getDateRange(trip.startDate, trip.endDate);
+
+  const handleTabClick = (index: number) => {
+    setSelectedTab(index);
+  };
+
+  const selectedSchedule = trip.schedules.find(
+    (schedule) =>
+      new Date(schedule.date).toISOString() === datesArray[selectedTab]
+  );
+
+  return (
+    <div className="flex flex-col h-screen px-5">
+      {/* Date Tabs */}
+      <div role="tablist" className="tabs tabs-bordered pt-4">
+        {datesArray.map((date, index) => (
+          <a
+            key={index}
+            role="tab"
+            className={`tab text-md ${
+              selectedTab === index && "tab-active font-bold"
+            }`}
+            onClick={() => handleTabClick(index)}
+          >
+            {formatDate(date)}
+          </a>
+        ))}
+      </div>
+
+      {/* Schedule */}
+      <div className="flex-grow overflow-y-auto hide-scrollbar p-5">
+        {selectedSchedule ? (
+          <ScheduleDetail schedule={selectedSchedule} />
+        ) : (
+          <div>No schedule for this date</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TripDetail;
