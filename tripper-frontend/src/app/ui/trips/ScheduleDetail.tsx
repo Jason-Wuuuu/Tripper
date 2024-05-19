@@ -1,8 +1,12 @@
-// components/Schedule.tsx
 import { Schedule } from "@/types";
 
-export default function ScheduleDetail({ schedule }: { schedule: Schedule }) {
-  // Helper function to calculate duration
+export default function ScheduleDetail({
+  schedule,
+  showDetails,
+}: {
+  schedule: Schedule;
+  showDetails: boolean;
+}) {
   const calculateDuration = (startTime: string, endTime: string) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -57,45 +61,47 @@ export default function ScheduleDetail({ schedule }: { schedule: Schedule }) {
               <p className="text-md">{`📍 ${stop.location}`}</p>
             </div>
 
-            <div
-              className={`${
-                i % 2 === 0 ? "timeline-end" : "timeline-start md:text-end"
-              } mb-20 mx-5`}
-            >
-              <div className="card max-w-lg bg-base-200 shadow-xl">
-                <div className="card-body">
-                  {/* Description */}
-                  <h2 className="card-title text-lg">Description</h2>
-                  <p className="text-md">{stop.description}</p>
+            {showDetails && (
+              <div
+                className={`${
+                  i % 2 === 0 ? "timeline-end" : "timeline-start md:text-end"
+                } mb-20 mx-5`}
+              >
+                <div className="card max-w-lg bg-base-200 shadow-xl">
+                  <div className="card-body">
+                    {/* Description */}
+                    <h2 className="card-title text-lg">Description</h2>
+                    <p className="text-md">{stop.description}</p>
 
-                  <div className="divider"></div>
+                    <div className="divider"></div>
 
-                  {/* Notes */}
-                  <h2 className="card-title text-lg">Notes</h2>
-                  <div className="chat chat-end">
-                    <div className="chat-bubble text-sm text-white">
-                      {stop.notes.map((note) => {
-                        return <p key={note}>{note}</p>;
-                      })}
+                    {/* Notes */}
+                    <h2 className="card-title text-lg">Notes</h2>
+                    <div className="chat chat-end">
+                      <div className="chat-bubble text-sm text-white">
+                        {stop.notes.map((note) => {
+                          return <p key={note}>{note}</p>;
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Tags */}
-              <div className="mt-5 flex gap-2">
-                {stop.tags.map((tag) => {
-                  return (
-                    <div
-                      key={tag}
-                      className="badge badge-outline font-semibold italic p-2"
-                    >
-                      {`#${tag}`}
-                    </div>
-                  );
-                })}
+                {/* Tags */}
+                <div className="mt-5 flex gap-2">
+                  {stop.tags.map((tag) => {
+                    return (
+                      <div
+                        key={tag}
+                        className="badge badge-outline font-semibold italic p-2"
+                      >
+                        {`#${tag}`}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             <hr />
           </li>

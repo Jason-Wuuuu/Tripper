@@ -1,4 +1,3 @@
-// components/DateTabs.tsx
 import { useState, useEffect } from "react";
 
 import { Trip } from "@/types";
@@ -6,6 +5,7 @@ import ScheduleDetail from "./ScheduleDetail";
 
 const TripDetail = ({ trip }: { trip: Trip }) => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
+  const [showDetails, setShowDetails] = useState<boolean>(true);
 
   useEffect(() => {
     setSelectedTab(0);
@@ -47,6 +47,16 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
     <div className="flex flex-col h-full">
       {/* Date Tabs */}
       <div role="tablist" className="tabs tabs-bordered">
+        {/* <a
+          key={datesArray.length}
+          role="tab"
+          className={`tab text-md ${
+            selectedTab === datesArray.length && "tab-active font-bold"
+          }`}
+          onClick={() => handleTabClick(datesArray.length)}
+        >
+          Overview
+        </a> */}
         {datesArray.map((date, index) => (
           <a
             key={index}
@@ -64,7 +74,20 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
       {/* Schedule */}
       <div className="flex-grow overflow-y-auto hide-scrollbar p-5">
         {selectedSchedule ? (
-          <ScheduleDetail schedule={selectedSchedule} />
+          <>
+            {/* <button
+              type="button"
+              className="btn btn-sm btn-secondary shadow-xl"
+              onClick={() => setShowDetails(!showDetails)}
+            >
+              Expand
+            </button> */}
+
+            <ScheduleDetail
+              schedule={selectedSchedule}
+              showDetails={showDetails}
+            />
+          </>
         ) : (
           <div>No schedule for this date</div>
         )}
