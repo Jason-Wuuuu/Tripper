@@ -43,7 +43,9 @@ export default function ScheduleDetail({
             <div
               className={`${
                 i % 2 === 0 ? "timeline-start md:text-end" : "timeline-end"
-              } mb-20 mx-5 flex flex-col space-y-4`}
+              } ${
+                showDetails ? "mb-20" : "mb-10"
+              }  mx-5 flex flex-col space-y-4`}
             >
               <time className="text-md italic">
                 {new Date(stop.startTime).toLocaleTimeString([], {
@@ -65,7 +67,7 @@ export default function ScheduleDetail({
               <div
                 className={`${
                   i % 2 === 0 ? "timeline-end" : "timeline-start md:text-end"
-                } mb-20 mx-5`}
+                } ${showDetails ? "mb-20" : "mb-10"} mx-5`}
               >
                 <div className="card max-w-lg bg-base-200 shadow-xl">
                   <div className="card-body">
