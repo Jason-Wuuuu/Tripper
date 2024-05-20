@@ -5,7 +5,7 @@ import ScheduleDetail from "./ScheduleDetail";
 
 const TripDetail = ({ trip }: { trip: Trip }) => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
-  const [showDetails, setShowDetails] = useState<boolean>(true);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   useEffect(() => {
     setSelectedTab(0);
@@ -46,8 +46,10 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
   return (
     <div className="flex flex-col h-full">
       {/* title */}
-      <div className="flex justify-between items-center w-full py-4">
-        <h2 className="text-2xl font-bold">{trip.title}</h2>
+      <div className="flex justify-between items-center w-full py-5">
+        <h2 className="text-2xl font-bold">{`${trip.title} (Day ${
+          selectedTab + 1
+        })`}</h2>
 
         <div className="flex space-x-3">
           <button
@@ -80,17 +82,6 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
 
       {/* Date Tabs */}
       <div role="tablist" className="tabs tabs-bordered">
-        {/* <a
-          key={datesArray.length}
-          role="tab"
-          className={`tab text-md ${
-            selectedTab === datesArray.length && "tab-active font-bold"
-          }`}
-          onClick={() => handleTabClick(datesArray.length)}
-        >
-          Overview
-        </a> */}
-
         {datesArray.map((date, index) => (
           <a
             key={index}

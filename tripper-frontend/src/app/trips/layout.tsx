@@ -32,50 +32,50 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       : router.push(`/trips`);
   }, [selectedTrip, router]);
 
-  const filteredTrips = trips.filter((trip) => trip.id !== selectedTrip?.id);
+  // const filteredTrips = trips.filter((trip) => trip.id !== selectedTrip?.id);
 
   return (
-    <div className="flex h-full font-mono">
+    <div className="flex h-full pt-16 font-mono">
       {/* left */}
       <div
         className={`${
           selectedTrip ? "w-1/4" : "w-4/5 mx-auto"
         } flex flex-col px-3`}
       >
-        <div className="flex items-center py-5 space-x-2">
-          {selectedTrip && (
-            <button
-              type="button"
-              className="btn btn-circle shadow-md text-lg font-bold"
-              onClick={() => setSelectedTrip(null)}
-            >
-              {`<`}
-            </button>
-          )}
-
-          <Search placeholder="Search Trips" />
-        </div>
-
-        <div className="flex-grow overflow-y-auto hide-scrollbar pb-5">
+        <div className="flex-grow overflow-y-auto hide-scrollbar py-5">
           <div
             className={`grid ${
               selectedTrip ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"
             } gap-5`}
           >
-            {filteredTrips.map((trip: Trip) => {
+            {trips.map((trip: Trip) => {
               return (
                 <div
                   key={trip.id}
                   className={`card ${
-                    trip.id !== selectedTrip?.id &&
-                    "bg-base-200 shadow-md cursor-pointer hover:bg-base-300"
+                    trip.id !== selectedTrip?.id
+                      ? "bg-base-200 shadow-md cursor-pointer hover:bg-base-300"
+                      : "border-2"
                   }`}
                   onClick={() => setSelectedTrip(trip)}
                 >
                   <div className="card-body">
                     <h2 className="card-title text-md">{trip.title}</h2>
 
-                    {trip.id !== selectedTrip?.id && (
+                    {trip.id === selectedTrip?.id ? (
+                      <div className="card-actions justify-end">
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm shadow-md"
+                          onClick={(e) => {
+                            e.stopPropagation(); // This stops the event from bubbling up to the parent elements.
+                            setSelectedTrip(null);
+                          }}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    ) : (
                       <p>
                         {new Date(trip.startDate).toLocaleDateString()} -{" "}
                         {new Date(trip.endDate).toLocaleDateString()}
