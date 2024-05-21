@@ -1,31 +1,38 @@
 package org.example.tripperbackend.models;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-@Document(collection = "users")
+@Document(collection = "Users")
 public class User {
     @Id
     private String id;
+
+    @Field
     private String username;
+
+    @Field
+    private String email;
+
+    @Field
     private String password;
-    private boolean active = true;
 
-    @DBRef
-    private Set<Role> roles = new HashSet<>();
+    @Field
+    private List<String> savedTrips; // Array of TripIds
 
-    public User() {
-    }
-
-    public User(String username, String password) {
+    // Constructors
+    public User(String username, String email, String password) {
         this.username = username;
+        this.email = email;
         this.password = password;
+        this.savedTrips = new ArrayList<>(); // Initialize with an empty list
     }
 
+    // Getters, and Setters
     public String getId() {
         return id;
     }
@@ -42,6 +49,14 @@ public class User {
         this.username = username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -50,23 +65,11 @@ public class User {
         this.password = password;
     }
 
-    public boolean isActive() {
-        return active;
+    public List<String> getSavedTrips() {
+        return savedTrips;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public void addRole(Role role) {
-        this.roles.add(role);
+    public void setSavedTrips(List<String> savedTrips) {
+        this.savedTrips = savedTrips;
     }
 }

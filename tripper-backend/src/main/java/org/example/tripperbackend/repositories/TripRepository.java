@@ -8,9 +8,6 @@ import java.util.List;
 
 @Repository
 public interface TripRepository extends MongoRepository<Trip, String> {
-
-    // Here you can define any custom query methods you might need
-    List<Trip> findByOwnersContaining(String ownerId);
-    List<Trip> findByVisibilityTrue();
-
+     List<Trip> findByOwner(String owner);
+     List<Trip> findByVisibility(Boolean visibility);
 }

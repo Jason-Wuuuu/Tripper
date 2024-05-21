@@ -1,13 +1,11 @@
 package org.example.tripperbackend.controllers;
 
-import org.example.tripperbackend.models.Schedule;
-import org.example.tripperbackend.models.Stop;
 import org.example.tripperbackend.models.Trip;
-import org.example.tripperbackend.security.CustomUserDetails;
+import org.example.tripperbackend.security.JwtUtil;
 import org.example.tripperbackend.services.TripService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,121 +15,97 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final JwtUtil jwtUtil;
 
-    public TripController(TripService tripService) {
+    @Autowired
+    public TripController(TripService tripService, JwtUtil jwtUtil) {
         this.tripService = tripService;
+        this.jwtUtil = jwtUtil;
     }
 
-    // Create a new trip
-    @PostMapping
-    public ResponseEntity<Trip> createTrip(Authentication authentication, @RequestBody Trip trip) {
-        String userId = getUserIdFromAuthentication(authentication);
-        trip.addOwner(userId);
-        Trip createdTrip = tripService.createTrip(trip);
-        return new ResponseEntity<>(createdTrip, HttpStatus.CREATED);
-    }
-
-    // Retrieve all trips
     @GetMapping
-    public ResponseEntity<List<Trip>> getAllTrips() {
-        List<Trip> trips = tripService.getAllTrips();
-        return new ResponseEntity<>(trips, HttpStatus.OK);
+    public ResponseEntity<?> findAllVisibleTrips() {
+        try {
+            List<Trip> trips = tripService.findAllVisibleTrips();
+            return ResponseEntity.ok(trips);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Retrieve a single trip by ID
+
     @GetMapping("/{tripId}")
-    public ResponseEntity<Trip> getTrip(Authentication authentication, @PathVariable String tripId) {
-        String userId = null;
-        if (authentication != null) {
-            userId = getUserIdFromAuthentication(authentication);
-        }
-
+    public ResponseEntity<?> findTripById(@PathVariable String tripId) {
         try {
-            Trip trip = tripService.getTrip(userId, tripId).orElse(null);
-            return new ResponseEntity<>(trip, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            Trip trip = tripService.findTripById(tripId);
+            if (trip == null) {
+                return new ResponseEntity<>("Trip not found or not visible", HttpStatus.NOT_FOUND);
+            }
+            return ResponseEntity.ok(trip);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Update a trip
-    @PutMapping("/{tripId}")
-    public ResponseEntity<Trip> updateTrip(Authentication authentication, @PathVariable String tripId, @RequestBody Trip trip) {
-        String userId = getUserIdFromAuthentication(authentication);
+    @GetMapping("/owner/{userId}")
+    public ResponseEntity<?> findTripsByOwner(@PathVariable String userId) {
         try {
-            Trip updatedTrip = tripService.updateTrip(userId, trip);
-            return new ResponseEntity<>(updatedTrip, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            List<Trip> trips = tripService.findTripsByOwner(userId);
+            return ResponseEntity.ok(trips);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Delete a trip
-    @DeleteMapping("/{tripId}")
-    public ResponseEntity<Void> deleteTrip(Authentication authentication, @PathVariable String tripId) {
-        String userId = getUserIdFromAuthentication(authentication);
+    @GetMapping("/mine")
+    public ResponseEntity<?> findMyTrips(@RequestHeader("Authorization") String token) {
         try {
-            tripService.deleteTrip(userId, tripId);
+            token = token.substring(7); // Remove 'Bearer ' from the token
+            String userId = jwtUtil.extractUserId(token);
+
+            List<Trip> trips = tripService.findTripsByOwner(userId);
+            return ResponseEntity.ok(trips);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createTrip(@RequestBody Trip trip, @RequestHeader("Authorization") String token) {
+        try {
+            token = token.substring(7); // Remove 'Bearer ' from the token
+            String userId = jwtUtil.extractUserId(token);
+
+            Trip newTrip = tripService.createTrip(trip, userId);
+            return new ResponseEntity<>(newTrip, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateTrip(@RequestBody Trip trip, @RequestHeader("Authorization") String token) {
+        try {
+            token = token.substring(7); // Remove 'Bearer ' from the token
+            String userId = jwtUtil.extractUserId(token);
+
+            Trip updatedTrip = tripService.updateTrip(trip, userId);
+            return ResponseEntity.ok(updatedTrip);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @DeleteMapping("/delete/{tripId}")
+    public ResponseEntity<?> deleteTrip(@PathVariable String tripId, @RequestHeader("Authorization") String token) {
+        try {
+            token = token.substring(7); // Remove 'Bearer ' from the token
+            String userId = jwtUtil.extractUserId(token);
+
+            tripService.deleteTrip(tripId, userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    // Add a schedule to a trip
-    @PostMapping("/{tripId}/schedules")
-    public ResponseEntity<Trip> addSchedule(Authentication authentication, @PathVariable String tripId, @RequestBody Schedule schedule) {
-        String userId = getUserIdFromAuthentication(authentication);
-        try {
-            Trip trip = tripService.addSchedule(userId, tripId, schedule);
-            return new ResponseEntity<>(trip, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    // Remove a schedule from a trip
-    @DeleteMapping("/{tripId}/schedules/{scheduleId}")
-    public ResponseEntity<Trip> removeSchedule(Authentication authentication, @PathVariable String tripId, @PathVariable String scheduleId) {
-        String userId = getUserIdFromAuthentication(authentication);
-        try {
-            Trip trip = tripService.removeSchedule(userId, tripId, scheduleId);
-            return new ResponseEntity<>(trip, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    // Add a stop to a schedule
-    @PostMapping("/{tripId}/schedules/{scheduleId}/stops")
-    public ResponseEntity<Trip> addStop(Authentication authentication, @PathVariable String tripId, @PathVariable String scheduleId, @RequestBody Stop stop) {
-        String userId = getUserIdFromAuthentication(authentication);
-        try {
-            Trip trip = tripService.addStop(userId, tripId, scheduleId, stop);
-            return new ResponseEntity<>(trip, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    // Remove a stop from a schedule
-    @DeleteMapping("/{tripId}/schedules/{scheduleId}/stops/{stopId}")
-    public ResponseEntity<Trip> removeStop(Authentication authentication, @PathVariable String tripId, @PathVariable String scheduleId, @PathVariable String stopId) {
-        String userId = getUserIdFromAuthentication(authentication);
-        try {
-            Trip trip = tripService.removeStop(userId, tripId, scheduleId, stopId);
-            return new ResponseEntity<>(trip, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    // Helper method to extract userId from Authentication object
-    private String getUserIdFromAuthentication(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            return userDetails.getUserId();
-        } else {
-            throw new IllegalArgumentException("User not authenticated");
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 }

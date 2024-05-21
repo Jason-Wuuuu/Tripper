@@ -1,70 +1,58 @@
 package org.example.tripperbackend.controllers;
 
-import org.example.tripperbackend.dto.UserRequest;
 import org.example.tripperbackend.models.User;
-import org.example.tripperbackend.security.CustomUserDetails;
 import org.example.tripperbackend.services.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getProfile(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            String userId = userDetails.getUserId();
-            User user = userService.getUserById(userId);
+    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
+        try {
+            token = token.substring(7);  // Remove 'Bearer ' from the token
+            User user = userService.getProfile(token);
 
             return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        } catch (Exception e) {
+            return new ResponseEntity<>(Collections.singletonMap("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody @Validated UserRequest updateRequest) {
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            String userId = userDetails.getUserId();
-
-            if (updateRequest.getUsername() == null && updateRequest.getPassword() == null) {
-                return ResponseEntity.badRequest().body("At least one of newUsername or newPassword must be provided.");
-            }
-
-            User updatedUser = userService.updateUserById(userId, updateRequest.getUsername(), updateRequest.getPassword());
+    public ResponseEntity<?> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody User user) {
+        try {
+            token = token.substring(7);  // Remove 'Bearer ' from the token
+            User updatedUser = userService.updateProfile(token, user);
 
             return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        } catch (Exception e) {
+            return new ResponseEntity<>(Collections.singletonMap("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
     }
 
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteUser(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            String userId = userDetails.getUserId();
-            userService.deleteUserById(userId);
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token) {
+        try {
+            token = token.substring(7);  // Remove 'Bearer ' from the token
+            userService.deleteUser(token);
 
-            return ResponseEntity.ok("User deleted successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Collections.singletonMap("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
     }
 }

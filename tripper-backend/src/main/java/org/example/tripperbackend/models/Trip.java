@@ -2,39 +2,88 @@ package org.example.tripperbackend.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-@Document(collection = "trips")
+@Document(collection = "Trips")
 public class Trip {
-
     @Id
-    private String id;
+    private String tripId;
+
+    @Field
+    private String owner;
+
+    @Field
+    private List<String> collaborators = new ArrayList<>();
+
+    @Field
     private String title;
-    private List<String> owners; // Stores user IDs
-    private boolean visibility;
+
+    @Field
+    private String description = "";
+
+    @Field
     private Date startDate;
+
+    @Field
     private Date endDate;
-    private List<Schedule> schedules;
 
-    public Trip(String title, boolean visibility, Date startDate, Date endDate, List<Schedule> schedules) {
-        this.title = title;
-        this.owners = new ArrayList<>();
-        this.visibility = visibility;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.schedules = Objects.requireNonNullElseGet(schedules, ArrayList::new);
+    @Field
+    private Boolean visibility = true;
+
+    @Field
+    private Map<String, String> dateToScheduleMap = new HashMap<>();
+
+    @Field
+    private List<String> notAssignedSchedules = new ArrayList<>();
+
+    // No-argument constructor
+    public Trip() {}
+
+    // Constructor with required fields
+    public Trip(String title, Date startDate, Date endDate) {
+        this.title = Objects.requireNonNull(title, "Title cannot be null");
+        this.startDate = Objects.requireNonNull(startDate, "Start date cannot be null");
+        this.endDate = Objects.requireNonNull(endDate, "End date cannot be null");
+        initializeDateToScheduleMap();
     }
 
-    public String getId() {
-        return id;
+    private void initializeDateToScheduleMap() {
+        Calendar start = Calendar.getInstance();
+        start.setTime(startDate);
+        Calendar end = Calendar.getInstance();
+        end.setTime(endDate);
+
+        for (Date date = start.getTime(); !start.after(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
+            String key = date.toString();
+            dateToScheduleMap.put(key, null); // Initialize with null indicating no schedule assigned yet
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
+    // Getters and Setters
+    public String getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public List<String> getCollaborators() {
+        return collaborators;
+    }
+
+    public void setCollaborators(List<String> collaborators) {
+        this.collaborators = collaborators;
     }
 
     public String getTitle() {
@@ -45,28 +94,12 @@ public class Trip {
         this.title = title;
     }
 
-    public List<String> getOwners() {
-        return owners;
+    public String getDescription() {
+        return description;
     }
 
-    public void setOwners(List<String> owners) {
-        this.owners = owners;
-    }
-
-    public void addOwner(String userId) {
-        this.owners.add(userId);
-    }
-
-    public void removeOwner(String userId) {
-        this.owners.remove(userId);
-    }
-
-    public boolean isVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(boolean visibility) {
-        this.visibility = visibility;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Date getStartDate() {
@@ -85,19 +118,27 @@ public class Trip {
         this.endDate = endDate;
     }
 
-    public List<Schedule> getSchedules() {
-        return schedules;
+    public Boolean getVisibility() {
+        return visibility;
     }
 
-    public void setSchedules(List<Schedule> schedules) {
-        this.schedules = schedules;
+    public void setVisibility(Boolean visibility) {
+        this.visibility = visibility;
     }
 
-    public void addSchedule(Schedule schedule) {
-        this.schedules.add(schedule);
+    public Map<String, String> getDateToScheduleMap() {
+        return dateToScheduleMap;
     }
 
-    public void removeSchedule(Schedule schedule) {
-        this.schedules.remove(schedule);
+    public void setDateToScheduleMap(Map<String, String> dateToScheduleMap) {
+        this.dateToScheduleMap = dateToScheduleMap;
+    }
+
+    public List<String> getNotAssignedSchedules() {
+        return notAssignedSchedules;
+    }
+
+    public void setNotAssignedSchedules(List<String> notAssignedSchedules) {
+        this.notAssignedSchedules = notAssignedSchedules;
     }
 }
