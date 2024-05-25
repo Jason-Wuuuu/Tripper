@@ -1,40 +1,43 @@
 export type Trip = {
-  id: string;
+  tripId: string;
   title: string;
-  owners: string[]; // References to User collection documents
+  description: string;
+  owner: string;
+  collaborators: string[];
   visibility: boolean; // true for public, false for private
-  startDate: string; // Using JavaScript Date object
+  startDate: string;
   endDate: string;
-  schedules: Schedule[]; // Embedded documents for schedules
+  schedules: { [index: number]: string };
+  notAssignedSchedules: string[];
 };
 
 export type Schedule = {
-  id: string; // Unique ID for each schedule
-  date: string;
-  stops: Stop[]; // Embedded documents for stops
+  scheduleId: string;
+  owner: string;
+  collaborators: string[];
+  visibility: boolean;
+  stops: { [time: string]: StopInfo };
+  notAssignedStops: string[];
+};
+
+export type StopInfo = {
+  stopId: string;
+  duration: number; // Duration in minutes
 };
 
 export type Stop = {
-  id: string; // Unique ID for each stop
-  startTime: string;
-  endTime: string;
+  stopId: string;
+  owner: string;
+  collaborators: string[];
   title: string;
-  tags: string[]; // Array of strings, e.g., ["restaurant", "museum", "sight"]
   description: string;
-  location: string;
-  externalLink: string; // URL as a string
-  media: string[]; // Array of image URLs
-  notes: string[]; // Array of notes
-};
-
-export type TripsResponse = {
-  ok: boolean;
-  data: null | Trip[];
-  error: null | Object;
-};
-
-export type TripResponse = {
-  ok: boolean;
-  data: null | Trip;
-  error: null | Object;
+  visibility: boolean;
+  location: {
+    type: string; // "Point" for GeoJsonPoint
+    coordinates: [number, number]; // Tuple of longitude and latitude
+  };
+  tags: string[];
+  externalLink: string;
+  media: string[];
+  notes: string[];
 };

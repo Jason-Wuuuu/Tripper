@@ -1,13 +1,16 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
 import { Trip } from "@/types";
-import ScheduleDetail from "./ScheduleDetail";
+import { ScheduleDetailPage } from "./ScheduleDetailPage";
 
-const TripDetail = ({ trip }: { trip: Trip }) => {
+export const TripDetailPage = ({ trip }: { trip: Trip }) => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   useEffect(() => {
+    // console.log(trip);
     setSelectedTab(0);
   }, [trip]);
 
@@ -37,11 +40,6 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
   const handleTabClick = (index: number) => {
     setSelectedTab(index);
   };
-
-  const selectedSchedule = trip.schedules.find(
-    (schedule) =>
-      new Date(schedule.date).toISOString() === datesArray[selectedTab]
-  );
 
   return (
     <div className="flex flex-col h-full">
@@ -98,17 +96,12 @@ const TripDetail = ({ trip }: { trip: Trip }) => {
 
       {/* Schedule */}
       <div className="flex-grow overflow-y-auto hide-scrollbar p-5">
-        {selectedSchedule ? (
-          <ScheduleDetail
-            schedule={selectedSchedule}
-            showDetails={showDetails}
-          />
-        ) : (
-          <div>No schedule for this date</div>
-        )}
+        {/* <h4>{trip.schedules[selectedTab]}</h4> */}
+        <ScheduleDetailPage
+          id={trip.schedules[selectedTab]}
+          showDetails={showDetails}
+        />
       </div>
     </div>
   );
 };
-
-export default TripDetail;

@@ -13,6 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,11 +30,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors
+                        .configurationSource(request -> {
+                            CorsConfiguration config = new CorsConfiguration();
+                            config.setAllowedOrigins(List.of("http://localhost:3000"));
+                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                            config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+                            config.setAllowCredentials(true);
+                            return config;
+                        })
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Allow public access to authentication endpoints
                         .requestMatchers("/api/trips", "/api/trips/{tripId}", "/api/trips/owner/{userId}").permitAll() // Explicitly allow public access to these trips endpoints
                         .requestMatchers("/api/trips/**").authenticated() // Require authentication for other trips endpoints
+                        .requestMatchers("/api/schedules/**").permitAll()
+                        .requestMatchers("/api/stops/**").permitAll()
                         .requestMatchers("/api/user/**").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

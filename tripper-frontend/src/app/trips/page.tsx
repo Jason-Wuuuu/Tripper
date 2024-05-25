@@ -1,21 +1,27 @@
-// import Pagination from '@/app/ui/invoices/pagination';
-// import Table from '@/app/ui/invoices/table';
-// import { CreateInvoice } from '@/app/ui/invoices/buttons';
-// import { lusitana } from '@/app/ui/fonts';
-// import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { Suspense } from "react";
-import Trips from "../ui/trips/Trips";
+"use client";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
-}) {
-  const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 1;
+import { Fragment, useEffect, useState } from "react";
 
-  return <></>;
+import { Trip } from "@/types";
+import { fetchVisibleTrips } from "@/app/lib/tripsUtil";
+import TripCard from "../ui/trips/TripCard";
+
+export default function Trips() {
+  const [trips, setTrips] = useState<Trip[]>([]);
+
+  useEffect(() => {
+    async function loadTrips() {
+      fetchVisibleTrips().then(setTrips);
+    }
+
+    loadTrips();
+  }, []);
+
+  return (
+    <Fragment>
+      {trips?.map((trip: Trip) => (
+        <TripCard key={trip.tripId} trip={trip} />
+      ))}
+    </Fragment>
+  );
 }

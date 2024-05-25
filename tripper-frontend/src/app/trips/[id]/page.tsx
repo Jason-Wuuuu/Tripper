@@ -1,28 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-import { fetchTripById } from "@/app/lib/data";
-import { TripResponse, Trip } from "@/types";
-
-import TripDetail from "@/app/ui/trips/TripDetail";
+import { Trip } from "@/types";
+import { fetchTripById } from "@/app/lib/tripsUtil";
+import { TripDetailPage } from "@/app/ui/trips/TripDetailPage";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [trip, setTrip] = useState<Trip>();
 
   useEffect(() => {
-    const loadTrip = async () => {
-      const tripResponse: TripResponse = await fetchTripById(params.id);
+    async function loadTrips() {
+      fetchTripById(params.id).then(setTrip);
+    }
 
-      if (tripResponse.ok && tripResponse.data) {
-        setTrip(tripResponse.data);
-      }
-    };
-
-    loadTrip();
+    loadTrips();
   }, [params]);
 
-  if (trip) {
-    return <TripDetail trip={trip} />;
-  }
+  return <Fragment>{trip && <TripDetailPage trip={trip} />}</Fragment>;
 }

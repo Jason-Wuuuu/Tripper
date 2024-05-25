@@ -24,7 +24,7 @@ export function LoginForm() {
 
             <div className="space-y-1">
               <label
-                htmlFor="identifier"
+                htmlFor="identity"
                 className="input input-bordered flex items-center gap-2"
               >
                 <svg
@@ -36,8 +36,8 @@ export function LoginForm() {
                   <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
                 </svg>
                 <input
-                  id="identifier"
-                  name="identifier"
+                  id="identity"
+                  name="identity"
                   type="text"
                   className="grow"
                   placeholder="ID"
@@ -93,7 +93,7 @@ export function LoginForm() {
         </div>
 
         <div className="mt-4 text-center text-sm">
-          Don't have an account?
+          {"Don't have an account?"}
           <Link className="underline ml-2" href="register">
             Register
           </Link>

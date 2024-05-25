@@ -78,7 +78,7 @@ export async function loginUserAction(prevState: any, formData: FormData) {
   // console.log("Login User Action");
 
   const validatedFields = schemaLogin.safeParse({
-    identifier: formData.get("identifier"),
+    identity: formData.get("identity"),
     password: formData.get("password"),
   });
 

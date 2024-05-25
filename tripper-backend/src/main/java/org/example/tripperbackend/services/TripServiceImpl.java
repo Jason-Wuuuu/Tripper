@@ -1,5 +1,6 @@
 package org.example.tripperbackend.services;
 
+import org.example.tripperbackend.models.Schedule;
 import org.example.tripperbackend.models.Trip;
 import org.example.tripperbackend.repositories.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,9 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public List<Trip> findTripsByOwner(String ownerId) {
+    public List<Trip> findTripsByOwner(String userId) {
         // Fetch all trips by a specific owner
-        return tripRepository.findByOwner(ownerId);
+        return tripRepository.findByOwner(userId);
     }
 
     @Override
@@ -52,7 +53,6 @@ public class TripServiceImpl implements TripService {
 
         return tripRepository.save(trip);
     }
-
 
     @Override
     public void deleteTrip(String tripId, String userId) throws Exception {

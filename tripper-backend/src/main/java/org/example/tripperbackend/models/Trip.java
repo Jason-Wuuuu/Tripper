@@ -33,13 +33,10 @@ public class Trip {
     private Boolean visibility = true;
 
     @Field
-    private Map<String, String> dateToScheduleMap = new HashMap<>();
+    private Map<Integer, String> schedules = new HashMap<>();
 
     @Field
     private List<String> notAssignedSchedules = new ArrayList<>();
-
-    // No-argument constructor
-    public Trip() {}
 
     // Constructor with required fields
     public Trip(String title, Date startDate, Date endDate) {
@@ -55,9 +52,9 @@ public class Trip {
         Calendar end = Calendar.getInstance();
         end.setTime(endDate);
 
+        int dayIndex = 0; // Initialize day index starting from 0
         for (Date date = start.getTime(); !start.after(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-            String key = date.toString();
-            dateToScheduleMap.put(key, null); // Initialize with null indicating no schedule assigned yet
+            schedules.put(dayIndex++, null); // Use dayIndex as the key and increment it each day
         }
     }
 
@@ -126,14 +123,19 @@ public class Trip {
         this.visibility = visibility;
     }
 
-    public Map<String, String> getDateToScheduleMap() {
-        return dateToScheduleMap;
+    public Map<Integer, String> getSchedules() {
+        return schedules;
     }
 
-    public void setDateToScheduleMap(Map<String, String> dateToScheduleMap) {
-        this.dateToScheduleMap = dateToScheduleMap;
+    public void setSchedules(Map<Integer, String> schedules) {
+        this.schedules = schedules;
     }
 
+    public void addSchedule(int day, String scheduleId) {
+        if (schedules.containsKey(day)) {
+            schedules.put(day, scheduleId);
+        }
+    }
     public List<String> getNotAssignedSchedules() {
         return notAssignedSchedules;
     }
@@ -141,4 +143,5 @@ public class Trip {
     public void setNotAssignedSchedules(List<String> notAssignedSchedules) {
         this.notAssignedSchedules = notAssignedSchedules;
     }
+
 }

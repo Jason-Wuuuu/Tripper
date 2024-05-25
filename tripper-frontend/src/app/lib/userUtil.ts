@@ -19,11 +19,12 @@ export async function getUserProfileLoader() {
     });
 
     const data = await response.json();
+    console.log(data);
+
     if (data.error) return { ok: false, data: null, error: data.error };
 
     return { ok: true, data: data, error: null };
   } catch (error) {
-    console.log(error);
     return { ok: false, data: null, error: error };
   }
 }
