@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/*
 import { getUserProfileLoader } from "@/app/lib/userUtil";
 
 export async function middleware(request: NextRequest) {
@@ -24,3 +25,18 @@ export async function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
+*/
+
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("token");
+
+  if (!token) {
+    return NextResponse.redirect("/login");
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/profile/:path*"],
+};

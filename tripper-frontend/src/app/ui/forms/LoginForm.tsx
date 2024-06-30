@@ -1,23 +1,45 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useState } from "react";
 import Link from "next/link";
 
 import { loginUserAction } from "@/app/lib/auth/auth-actions";
 import { ZodErrors } from "@/app/ui/errors/ZodErrors";
 import { ServerErrors } from "@/app/ui/errors/ServerErrors";
 import { SubmitButton } from "@/app/ui/SubmitButton";
+import useAuth from "@/app/hooks/useAuth";
 
 const INITIAL_STATE = {
   data: null,
 };
 
 export function LoginForm() {
-  const [formState, formAction] = useFormState(loginUserAction, INITIAL_STATE);
+  const [identity, setIdentity] = useState("");
+  const [password, setPassword] = useState("");
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const response = await fetch("http://localhost:8080/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ identity, password }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      login(data.token);
+    } else {
+      // Handle login error
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
-      <form action={formAction}>
+      <form onSubmit={handleSubmit}>
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body space-y-3">
             <h2 className="card-title text-2xl font-bold">Login</h2>
@@ -42,10 +64,12 @@ export function LoginForm() {
                   className="grow"
                   placeholder="ID"
                   autoFocus
+                  onChange={(e) => setIdentity(e.target.value)}
+                  required
                 />
               </label>
 
-              <ZodErrors error={formState?.zodErrors?.identifier} />
+              {/* <ZodErrors error={formState?.zodErrors?.identifier} /> */}
             </div>
 
             <div className="space-y-1">
@@ -72,10 +96,12 @@ export function LoginForm() {
                   type="password"
                   className="grow"
                   placeholder="Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </label>
 
-              <ZodErrors error={formState?.zodErrors?.password} />
+              {/* <ZodErrors error={formState?.zodErrors?.password} /> */}
             </div>
 
             <div className="space-y-1">
@@ -87,7 +113,7 @@ export function LoginForm() {
                 />
               </div>
 
-              <ServerErrors error={formState?.serverErrors} />
+              {/* <ServerErrors error={formState?.serverErrors} /> */}
             </div>
           </div>
         </div>

@@ -41,3 +41,8 @@ export type Stop = {
   media: string[];
   notes: string[];
 };
+
+export type UserProfile = {
+  username: string;
+  email: string;
+};

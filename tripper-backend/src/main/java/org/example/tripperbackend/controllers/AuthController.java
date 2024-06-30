@@ -5,11 +5,13 @@ import org.example.tripperbackend.dto.RegistrationRequestDTO;
 import org.example.tripperbackend.models.User;
 import org.example.tripperbackend.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,7 +38,11 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO loginRequest) {
         try {
             String token = authService.login(loginRequest.getIdentity(), loginRequest.getPassword());
-            return ResponseEntity.ok(Collections.singletonMap("token", token));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.SET_COOKIE, "token=" + token + "; HttpOnly; Path=/; Max-Age=3600");
+
+            return ResponseEntity.ok().headers(headers).body(Map.of("message", "Login successful"));
         } catch (Exception e) {
             return new ResponseEntity<>(Collections.singletonMap("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
